@@ -1,7 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from "react";
-import { useAuth } from "./useAuth";
 import { CACHE_CONFIG } from "../config/constants";
-import { withSessionRefresh } from "../lib/neonAuth";
 
 interface UsageData {
   wordsUsed: number;
@@ -63,9 +61,8 @@ interface UseUsageResult {
 const USAGE_CACHE_TTL = CACHE_CONFIG.API_KEY_TTL; // 1 hour
 
 export function useUsage(): UseUsageResult | null {
-  const { isSignedIn, isLoaded } = useAuth();
   const [data, setData] = useState<UsageData | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const [hasLoaded, setHasLoaded] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [checkoutLoading, setCheckoutLoading] = useState(false);
@@ -79,8 +76,7 @@ export function useUsage(): UseUsageResult | null {
     setError(null);
 
     try {
-      await withSessionRefresh(async () => {
-        const result = await window.electronAPI.cloudUsage();
+      const result = await window.electronAPI.cloudUsage();
         if (result.success) {
           setData({
             wordsUsed: result.wordsUsed ?? 0,
@@ -154,9 +150,10 @@ export function useUsage(): UseUsageResult | null {
       window.removeEventListener("usage-changed", handleUsageChanged);
       window.removeEventListener("upgrade-success", handleUpgradeSuccess);
     };
-  }, [isLoaded, isSignedIn, fetchUsage]);
+  }, [fetchUsage]);
 
-  const openCheckout = useCallback(
+  // No auth — always return null
+  return null; = useCallback(
     async (opts?: {
       plan?: "monthly" | "annual";
       tier?: "pro" | "business";
