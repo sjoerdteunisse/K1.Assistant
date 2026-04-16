@@ -110,7 +110,6 @@
     "@ai-sdk/google": "^3.0.43",
     "@ai-sdk/groq": "^3.0.29",
     "@ai-sdk/openai": "^3.0.41",
-    "@esbuild/win32-x64": "^0.28.0",
     "@qdrant/js-client-rest": "^1.12.0",
     "@radix-ui/react-accordion": "^1.1.2",
     "@radix-ui/react-dialog": "^1.1.14",
@@ -121,7 +120,6 @@
     "@radix-ui/react-select": "^2.2.5",
     "@radix-ui/react-slot": "^1.2.3",
     "@radix-ui/react-tabs": "^1.1.12",
-    "@rollup/rollup-win32-x64-msvc": "^4.60.1",
     "@tanstack/react-virtual": "^3.13.2",
     "@tiptap/core": "^3.20.4",
     "@tiptap/extension-placeholder": "^3.20.4",
@@ -159,5 +157,9 @@
     "ws": "^8.19.0",
     "zod": "^4.3.6",
     "zustand": "^5.0.11"
+  },
+  "optionalDependencies": {
+    "@esbuild/win32-x64": "^0.28.0",
+    "@rollup/rollup-win32-x64-msvc": "^4.60.1"
   }
 }
