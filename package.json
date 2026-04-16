@@ -137,7 +137,7 @@
     "electron-updater": "^6.6.2",
     "ffmpeg-static": "^5.2.0",
     "flatted": "^3.4.2",
-    "i18next": "^25.8.4",
+    "i18next": "^26.0.5",
     "kysely": "^0.28.14",
     "lucide-react": "^0.518.0",
     "object-assign": "^4.1.1",
