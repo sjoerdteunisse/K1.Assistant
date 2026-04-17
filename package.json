@@ -78,8 +78,8 @@
     "desktop-app"
   ],
   "author": {
-    "name": "OpenWhispr Team",
-    "email": "support@openwhispr.com"
+    "name": "K1.assistant Team",
+    "email": "sjoerdteunisse@gmail.com"
   },
   "license": "MIT",
   "devDependencies": {

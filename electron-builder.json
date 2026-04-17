@@ -1,10 +1,10 @@
 {
-  "appId": "com.herotools.openwispr",
+  "appId": "com.openneuronic.k1.assistant",
   "afterPack": "scripts/afterPack.js",
-  "productName": "OpenWhispr",
+  "productName": "K1.assistant",
   "protocols": {
-    "name": "OpenWhispr Protocol",
-    "schemes": ["openwhispr"]
+    "name": "K1.assistant Protocol",
+    "schemes": ["K1.assistant"]
   },
   "directories": {
     "output": "dist"
@@ -123,9 +123,9 @@
     "gatekeeperAssess": false,
     "extendInfo": {
       "LSUIElement": false,
-      "NSMicrophoneUsageDescription": "OpenWhispr uses the microphone to capture your voice for transcription.",
-      "NSAudioCaptureUsageDescription": "OpenWhispr uses system audio to capture other participants' audio from calls and meetings. Your screen is never recorded.",
-      "NSAccessibilityUsageDescription": "OpenWhispr needs accessibility permissions to paste transcribed text into other applications."
+      "NSMicrophoneUsageDescription": "K1.assistant uses the microphone to capture your voice for transcription.",
+      "NSAudioCaptureUsageDescription": "K1.assistant uses system audio to capture other participants' audio from calls and meetings. Your screen is never recorded.",
+      "NSAccessibilityUsageDescription": "K1.assistant needs accessibility permissions to paste transcribed text into other applications."
     }
   },
   "win": {
@@ -210,7 +210,7 @@
     "include": "resources/nsis/cleanup-models.nsh"
   },
   "dmg": {
-    "title": "OpenWhispr",
+    "title": "K1.assistant",
     "icon": "src/assets/icon.icns",
     "window": {
       "width": 540,
