@@ -121,11 +121,6 @@
     "target": ["dmg", "zip"],
     "icon": "src/assets/icon.icns",
     "gatekeeperAssess": false,
-    "hardenedRuntime": true,
-    "entitlements": "resources/mac/entitlements.mac.plist",
-    "entitlementsInherit": "resources/mac/entitlements.mac.plist",
-    "identity": "HeroTools Inc. (9R85XFMH59)",
-    "notarize": true,
     "extendInfo": {
       "LSUIElement": false,
       "NSMicrophoneUsageDescription": "OpenWhispr uses the microphone to capture your voice for transcription.",
