@@ -219,9 +219,9 @@
   },
   "publish": {
     "provider": "github",
-    "owner": "OpenWhispr",
-    "repo": "openwhispr",
+    "owner": "sjoerdteunisse",
+    "repo": "K1.Assistant",
     "private": false,
-    "releaseType": "draft"
+    "releaseType": "release"
   }
 }
