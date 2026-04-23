@@ -43,6 +43,8 @@ interface UseChatStreamingOptions {
   setMessages: React.Dispatch<React.SetStateAction<Message[]>>;
   /** Optional note context to prepend to the system prompt (used by embedded note chat). */
   noteContext?: string;
+  /** Active MCP server IDs for the current conversation. */
+  activeMcpServerIds?: string[];
   onStreamComplete?: (assistantId: string, content: string, toolCalls?: ToolCallInfo[]) => void;
 }
 
@@ -58,6 +60,7 @@ export function useChatStreaming({
   messages,
   setMessages,
   noteContext: externalNoteContext,
+  activeMcpServerIds = [],
   onStreamComplete,
 }: UseChatStreamingOptions): ChatStreaming {
   const { t } = useTranslation();
@@ -102,27 +105,33 @@ export function useChatStreaming({
       );
       const localModelCanUseTool =
         isLocalProvider && estimateModelSizeB(settings.agentModel) >= LOCAL_TOOL_MIN_PARAMS_B;
-      const supportsTools = isCloudAgent || !isLocalProvider || localModelCanUseTool;
+      // Also allow tools when the user has explicitly activated MCP servers — they opted in deliberately
+      const hasMcpServers = activeMcpServerIds.length > 0;
+      const supportsTools = isCloudAgent || !isLocalProvider || localModelCanUseTool || hasMcpServers;
 
       let registry: ToolRegistry | null = null;
       if (supportsTools) {
-        const cacheKey = `${settings.isSignedIn}-${settings.gcalConnected}-${settings.cloudBackupEnabled}`;
+        const cacheKey = `${settings.isSignedIn}-${settings.gcalConnected}-${settings.cloudBackupEnabled}-${activeMcpServerIds.join(",")}`;
         if (toolRegistryRef.current?.key === cacheKey) {
           registry = toolRegistryRef.current.registry;
         } else {
-          registry = createToolRegistry({
-            isSignedIn: settings.isSignedIn,
-            gcalConnected: settings.gcalConnected,
-            cloudBackupEnabled: settings.cloudBackupEnabled,
-          });
+          registry = await createToolRegistry(
+            {
+              isSignedIn: settings.isSignedIn,
+              gcalConnected: settings.gcalConnected,
+              cloudBackupEnabled: settings.cloudBackupEnabled,
+            },
+            activeMcpServerIds
+          );
           toolRegistryRef.current = { key: cacheKey, registry };
         }
       }
 
+      console.log(`[Agent] registry tools (${registry?.getAll().length ?? 0}):`, registry?.getAll().map(t => t.name));
       const ragContext = await buildRAGContext(userText);
       const combinedContext = [noteContextRef.current, ragContext].filter(Boolean).join("\n\n");
       const systemPrompt = getAgentSystemPrompt(
-        registry?.getAll().map((t) => t.name),
+        registry?.getAll().map((t) => ({ name: t.name, description: t.description })),
         combinedContext || undefined
       );
 
@@ -206,6 +215,7 @@ export function useChatStreaming({
             );
           } else if (chunk.type === "tool_calls") {
             for (const call of chunk.calls) {
+              console.log(`[Agent] tool_call name="${call.name}" id="${call.id}" args=`, call.arguments);
               setAgentState("tool-executing");
               setActiveToolName(call.name);
               setToolStatus(

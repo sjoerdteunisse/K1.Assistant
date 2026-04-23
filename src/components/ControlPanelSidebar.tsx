@@ -9,6 +9,7 @@ import {
   Search,
   Mic,
   Brain,
+  Plug,
 } from "lucide-react";
 import logoIcon from "../assets/icon.png";
 import { useTranslation } from "react-i18next";
@@ -24,7 +25,8 @@ export type ControlPanelView =
   | "chat"
   | "personal-notes"
   | "dictionary"
-  | "upload";
+  | "upload"
+  | "mcp-servers";
   
 
 interface ControlPanelSidebarProps {
@@ -70,6 +72,7 @@ export default function ControlPanelSidebar({
     { id: "personal-notes", label: t("sidebar.notes"), icon: NotebookPen },
     { id: "upload", label: t("sidebar.upload"), icon: Upload },
     { id: "dictionary", label: t("sidebar.dictionary"), icon: BookOpen },
+    { id: "mcp-servers", label: t("sidebar.mcpServers"), icon: Plug },
   ];
 
   return (

@@ -10,6 +10,8 @@ interface ChatInputProps {
   onTextSubmit?: (text: string) => void;
   onCancel?: () => void;
   autoFocus?: boolean;
+  /** Slot rendered to the left of the send/stop button. */
+  actionSlot?: React.ReactNode;
 }
 
 function RecordingIndicator() {
@@ -46,6 +48,7 @@ export function ChatInput({
   onTextSubmit,
   onCancel,
   autoFocus = false,
+  actionSlot,
 }: ChatInputProps) {
   const { t } = useTranslation();
   const [inputText, setInputText] = useState("");
@@ -127,6 +130,7 @@ export function ChatInput({
                 isBusy && "text-muted-foreground/30 cursor-not-allowed"
               )}
             />
+            {actionSlot}
             {isBusy && onCancel ? (
               <button
                 onClick={onCancel}

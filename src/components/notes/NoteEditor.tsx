@@ -13,6 +13,7 @@ import {
   Search,
   Plus,
   Check,
+  ListChecks,
 } from "lucide-react";
 import { RichTextEditor } from "../ui/RichTextEditor";
 import type { Editor } from "@tiptap/react";
@@ -164,6 +165,40 @@ export default function NoteEditor({
     }
   }, [note.participants]);
 
+  // Live content for task counter — updates immediately on every editor change, before debounced save
+  const [liveContent, setLiveContent] = useState(note.content || "");
+  useEffect(() => {
+    setLiveContent(note.content || "");
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [note.id]);
+
+  const taskCounts = useMemo(() => {
+    const done = (liveContent.match(/^\s*- \[x\] /gm) || []).length;
+    const inProgress = (liveContent.match(/^\s*- \[\/\] /gm) || []).length;
+    const open = (liveContent.match(/^\s*- \[ \] /gm) || []).length;
+    const total = done + inProgress + open;
+    return { total, done, inProgress, open };
+  }, [liveContent]);
+
+  const handleInsertTask = useCallback(() => {
+    const editor = editorRef.current;
+    if (!editor) return;
+    editor
+      .chain()
+      .focus()
+      .insertContent({
+        type: "taskList",
+        content: [
+          {
+            type: "taskItem",
+            attrs: { status: "open", dueDate: null, checked: false },
+            content: [{ type: "paragraph" }],
+          },
+        ],
+      })
+      .run();
+  }, []);
+
   const updateSegmentIndicator = useCallback(() => {
     const container = segmentContainerRef.current;
     if (!container) return;
@@ -257,6 +292,7 @@ export default function NoteEditor({
 
   const handleContentChange = useCallback(
     (newValue: string) => {
+      setLiveContent(newValue);
       onContentChange(newValue);
     },
     [onContentChange]
@@ -427,6 +463,19 @@ export default function NoteEditor({
                 {t("notes.editor.saving")}
               </span>
             )}
+            {/* Task progress pill */}
+            {taskCounts.total > 0 && (
+              <span
+                className="inline-flex items-center gap-1 text-[10px] px-1.5 py-0.5 rounded-full bg-foreground/5 text-foreground/45 select-none"
+                title={t("notes.tasks.progress", {
+                  done: taskCounts.done,
+                  total: taskCounts.total,
+                })}
+              >
+                <ListChecks size={9} className="shrink-0" />
+                {taskCounts.done}/{taskCounts.total}
+              </span>
+            )}
             <div className="flex-1" />
             <div className="flex items-center gap-1">
               {(enhancement || hasMeetingTranscript || hasChatSegments || isMeetingRecording) && (
@@ -491,6 +540,17 @@ export default function NoteEditor({
                     </button>
                   )}
                 </div>
+              )}
+              {/* Add Task button */}
+              {viewMode === "raw" && !isMeetingRecording && (
+                <button
+                  onClick={handleInsertTask}
+                  className="shrink-0 h-6 w-6 flex items-center justify-center rounded-md bg-foreground/4 dark:bg-white/5 text-foreground/50 dark:text-foreground/40 hover:text-foreground/70 hover:bg-foreground/8 dark:hover:text-foreground/60 dark:hover:bg-white/8 transition-colors duration-150"
+                  aria-label={t("notes.tasks.addTask")}
+                  title={t("notes.tasks.addTask")}
+                >
+                  <ListChecks size={11} />
+                </button>
               )}
               {onExportNote && (
                 <DropdownMenu>

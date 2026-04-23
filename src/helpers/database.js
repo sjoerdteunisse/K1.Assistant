@@ -388,6 +388,32 @@ class DatabaseManager {
         )
       `);
 
+      // MCP server configuration
+      this.db.exec(`
+        CREATE TABLE IF NOT EXISTS mcp_servers (
+          id TEXT PRIMARY KEY,
+          name TEXT NOT NULL,
+          description TEXT,
+          transport TEXT NOT NULL DEFAULT 'stdio',
+          command TEXT,
+          args TEXT,
+          url TEXT,
+          headers TEXT,
+          env_vars TEXT,
+          enabled INTEGER NOT NULL DEFAULT 1,
+          created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        )
+      `);
+
+      // Per-conversation MCP server overrides
+      this.db.exec(`
+        CREATE TABLE IF NOT EXISTS conversation_mcp_servers (
+          conversation_id INTEGER NOT NULL REFERENCES agent_conversations(id) ON DELETE CASCADE,
+          server_id TEXT NOT NULL REFERENCES mcp_servers(id) ON DELETE CASCADE,
+          PRIMARY KEY (conversation_id, server_id)
+        )
+      `);
+
       return true;
     } catch (error) {
       debugLogger.error("Database initialization failed", { error: error.message }, "database");
@@ -1485,6 +1511,144 @@ class DatabaseManager {
     } catch (error) {
       debugLogger.error(
         "Error updating agent conversation cloud_id",
+        { error: error.message },
+        "database"
+      );
+      throw error;
+    }
+  }
+
+  // ─── MCP servers ───────────────────────────────────────────────────────────
+
+  getMcpServers() {
+    try {
+      if (!this.db) throw new Error("Database not initialized");
+      return this.db.prepare("SELECT * FROM mcp_servers ORDER BY created_at ASC").all();
+    } catch (error) {
+      debugLogger.error("Error getting MCP servers", { error: error.message }, "database");
+      throw error;
+    }
+  }
+
+  getMcpServer(id) {
+    try {
+      if (!this.db) throw new Error("Database not initialized");
+      return this.db.prepare("SELECT * FROM mcp_servers WHERE id = ?").get(id) || null;
+    } catch (error) {
+      debugLogger.error("Error getting MCP server", { error: error.message }, "database");
+      throw error;
+    }
+  }
+
+  addMcpServer(config) {
+    try {
+      if (!this.db) throw new Error("Database not initialized");
+      const { randomUUID } = require("crypto");
+      const id = config.id || randomUUID();
+      this.db
+        .prepare(
+          "INSERT INTO mcp_servers (id, name, description, transport, command, args, url, headers, env_vars, enabled) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
+        )
+        .run(
+          id,
+          config.name,
+          config.description || null,
+          config.transport || "stdio",
+          config.command || null,
+          config.args ? JSON.stringify(config.args) : null,
+          config.url || null,
+          config.headers ? JSON.stringify(config.headers) : null,
+          config.env_vars ? JSON.stringify(config.env_vars) : null,
+          config.enabled !== false ? 1 : 0
+        );
+      return this.getMcpServer(id);
+    } catch (error) {
+      debugLogger.error("Error adding MCP server", { error: error.message }, "database");
+      throw error;
+    }
+  }
+
+  updateMcpServer(id, patch) {
+    try {
+      if (!this.db) throw new Error("Database not initialized");
+      const existing = this.getMcpServer(id);
+      if (!existing) throw new Error(`MCP server not found: ${id}`);
+
+      const fields = [];
+      const values = [];
+      const allowed = [
+        "name", "description", "transport", "command", "url", "enabled"
+      ];
+      for (const key of allowed) {
+        if (key in patch) {
+          fields.push(`${key} = ?`);
+          values.push(patch[key]);
+        }
+      }
+      // JSON fields
+      for (const key of ["args", "headers", "env_vars"]) {
+        if (key in patch) {
+          fields.push(`${key} = ?`);
+          values.push(patch[key] != null ? JSON.stringify(patch[key]) : null);
+        }
+      }
+      if (fields.length === 0) return this.getMcpServer(id);
+      values.push(id);
+      this.db.prepare(`UPDATE mcp_servers SET ${fields.join(", ")} WHERE id = ?`).run(...values);
+      return this.getMcpServer(id);
+    } catch (error) {
+      debugLogger.error("Error updating MCP server", { error: error.message }, "database");
+      throw error;
+    }
+  }
+
+  deleteMcpServer(id) {
+    try {
+      if (!this.db) throw new Error("Database not initialized");
+      this.db.prepare("DELETE FROM mcp_servers WHERE id = ?").run(id);
+      return { success: true };
+    } catch (error) {
+      debugLogger.error("Error deleting MCP server", { error: error.message }, "database");
+      throw error;
+    }
+  }
+
+  getConversationMcpServers(conversationId) {
+    try {
+      if (!this.db) throw new Error("Database not initialized");
+      const rows = this.db
+        .prepare("SELECT server_id FROM conversation_mcp_servers WHERE conversation_id = ?")
+        .all(conversationId);
+      return rows.map((r) => r.server_id);
+    } catch (error) {
+      debugLogger.error(
+        "Error getting conversation MCP servers",
+        { error: error.message },
+        "database"
+      );
+      throw error;
+    }
+  }
+
+  setConversationMcpServers(conversationId, serverIds) {
+    try {
+      if (!this.db) throw new Error("Database not initialized");
+      const transaction = this.db.transaction((ids) => {
+        this.db
+          .prepare("DELETE FROM conversation_mcp_servers WHERE conversation_id = ?")
+          .run(conversationId);
+        const stmt = this.db.prepare(
+          "INSERT OR IGNORE INTO conversation_mcp_servers (conversation_id, server_id) VALUES (?, ?)"
+        );
+        for (const sid of ids) {
+          stmt.run(conversationId, sid);
+        }
+      });
+      transaction(serverIds);
+      return { success: true };
+    } catch (error) {
+      debugLogger.error(
+        "Error setting conversation MCP servers",
         { error: error.message },
         "database"
       );

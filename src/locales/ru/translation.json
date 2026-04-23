@@ -143,7 +143,8 @@
     "private": "Приватный",
     "tap": "Нажатие",
     "close": "Закрыть",
-    "dismiss": "Скрыть"
+    "dismiss": "Скрыть",
+    "save": "Сохранить"
   },
   "onboarding": {
     "steps": {
@@ -1798,6 +1799,22 @@
     "speaker": {
       "you": "Вы",
       "them": "Собеседник"
+    },
+    "tasks": {
+      "addTask": "Добавить задачу",
+      "progress": "{{done}}/{{total}} выполнено",
+      "cycleStatus": "Статус: {{status}}",
+      "addDueDate": "Установить дату и время",
+      "changeDueDate": "Изменить дату и время",
+      "removeDueDate": "Убрать дату",
+      "statusOpen": "Открыта",
+      "statusInProgress": "В процессе",
+      "statusDone": "Выполнена",
+      "togglePriority": "Приоритет: {{priority}}",
+      "priorityNone": "Без приоритета",
+      "priorityLow": "Низкий",
+      "priorityMedium": "Средний",
+      "priorityHigh": "Высокий"
     }
   },
   "dictionary": {
@@ -1830,7 +1847,8 @@
     "learnMore": "Узнать больше",
     "defaultUser": "Пользователь",
     "notSignedIn": "Не авторизован",
-    "chat": "Чат"
+    "chat": "Чат",
+    "mcpServers": "MCP-серверы"
   },
   "chat": {
     "newChat": "Новый чат",
@@ -2132,5 +2150,52 @@
     "copy": "Копировать",
     "copied": "Скопировано",
     "waitingForInput": "Скажите что-нибудь..."
+  },
+  "mcp": {
+    "selector": {
+      "tooltip": "MCP-серверы",
+      "title": "MCP-серверы",
+      "manage": "Управление серверами"
+    },
+    "status": {
+      "connected": "Подключён",
+      "connecting": "Подключение",
+      "error": "Ошибка",
+      "disconnected": "Отключён",
+      "disabled": "Отключён"
+    },
+    "form": {
+      "name": "Название",
+      "namePlaceholder": "Мой MCP-сервер",
+      "description": "Описание",
+      "descriptionPlaceholder": "Что делает этот сервер?",
+      "transport": "Транспорт",
+      "command": "Команда",
+      "args": "Аргументы",
+      "url": "URL"
+    },
+    "server": {
+      "enable": "Включить",
+      "disable": "Отключить",
+      "delete": "Удалить сервер"
+    },
+    "settings": {
+      "title": "MCP-серверы",
+      "subtitle": "Подключите внешние инструменты через Model Context Protocol",
+      "addServer": "Добавить сервер",
+      "refresh": "Обновить",
+      "loading": "Загрузка...",
+      "empty": "MCP-серверы не настроены",
+      "emptyHint": "Добавьте сервер",
+      "installed": "Установленные"
+    },
+    "catalog": {
+      "title": "Рекомендуемые серверы",
+      "recommended": "Рекомендуется",
+      "add": "Добавить",
+      "adding": "Добавление…",
+      "added": "Добавлено",
+      "hint": "Требуется npx (Node.js) в PATH"
+    }
   }
 }

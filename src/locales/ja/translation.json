@@ -143,7 +143,8 @@
     "private": "プライベート",
     "tap": "タップ",
     "close": "閉じる",
-    "dismiss": "閉じる"
+    "dismiss": "閉じる",
+    "save": "保存"
   },
   "onboarding": {
     "steps": {
@@ -1726,6 +1727,22 @@
     "speaker": {
       "you": "あなた",
       "them": "相手"
+    },
+    "tasks": {
+      "addTask": "タスクを追加",
+      "progress": "{{done}}/{{total}} 完了",
+      "cycleStatus": "ステータス: {{status}}",
+      "addDueDate": "日時を設定",
+      "changeDueDate": "日時を変更",
+      "removeDueDate": "日付を削除",
+      "statusOpen": "未着手",
+      "statusInProgress": "進行中",
+      "statusDone": "完了",
+      "togglePriority": "優先度: {{priority}}",
+      "priorityNone": "優先度なし",
+      "priorityLow": "低",
+      "priorityMedium": "中",
+      "priorityHigh": "高"
     }
   },
   "dictionary": {
@@ -1830,7 +1847,8 @@
     "learnMore": "詳しく見る",
     "defaultUser": "ユーザー",
     "notSignedIn": "未サインイン",
-    "chat": "チャット"
+    "chat": "チャット",
+    "mcpServers": "MCPサーバー"
   },
   "chat": {
     "newChat": "新しいチャット",
@@ -2132,5 +2150,52 @@
     "copy": "コピー",
     "copied": "コピー済み",
     "waitingForInput": "何か話してください..."
+  },
+  "mcp": {
+    "selector": {
+      "tooltip": "MCPサーバー",
+      "title": "MCPサーバー",
+      "manage": "サーバーを管理"
+    },
+    "status": {
+      "connected": "接続済み",
+      "connecting": "接続中",
+      "error": "エラー",
+      "disconnected": "切断",
+      "disabled": "無効"
+    },
+    "form": {
+      "name": "名前",
+      "namePlaceholder": "マイMCPサーバー",
+      "description": "説明",
+      "descriptionPlaceholder": "このサーバーは？",
+      "transport": "トランスポート",
+      "command": "コマンド",
+      "args": "引数",
+      "url": "URL"
+    },
+    "server": {
+      "enable": "有効にする",
+      "disable": "無効にする",
+      "delete": "サーバーを削除"
+    },
+    "settings": {
+      "title": "MCPサーバー",
+      "subtitle": "Model Context Protocolで外部ツールを接続",
+      "addServer": "サーバーを追加",
+      "refresh": "更新",
+      "loading": "サーバーを読み込み中...",
+      "empty": "MCPサーバーが設定されていません",
+      "emptyHint": "サーバーを追加してください",
+      "installed": "インストール済み"
+    },
+    "catalog": {
+      "title": "おすすめサーバー",
+      "recommended": "おすすめ",
+      "add": "追加",
+      "adding": "追加中…",
+      "added": "追加済み",
+      "hint": "PATH に npx (Node.js) が必要です"
+    }
   }
 }

@@ -209,6 +209,7 @@ const AudioActivityDetector = require("./src/helpers/audioActivityDetector");
 const AudioTapManager = require("./src/helpers/audioTapManager");
 const LinuxPortalAudioManager = require("./src/helpers/linuxPortalAudioManager");
 const MeetingDetectionEngine = require("./src/helpers/meetingDetectionEngine");
+const McpManager = require("./src/helpers/mcpManager");
 const { i18nMain, changeLanguage } = require("./src/helpers/i18nMain");
 const { ensureYdotool } = require("./src/helpers/ensureYdotool");
 
@@ -232,6 +233,7 @@ let meetingDetectionEngine = null;
 let audioTapManager = null;
 let linuxPortalAudioManager = null;
 let qdrantManager = null;
+let mcpManager = null;
 let ipcHandlers = null;
 let globeKeyAlertShown = false;
 let authBridgeServer = null;
@@ -310,6 +312,7 @@ function initializeCoreManagers() {
   textEditMonitor = new TextEditMonitor();
   audioTapManager = new AudioTapManager();
   linuxPortalAudioManager = new LinuxPortalAudioManager();
+  mcpManager = new McpManager(databaseManager);
   windowManager.textEditMonitor = textEditMonitor;
 
   // IPC handlers must be registered before window content loads
@@ -328,6 +331,7 @@ function initializeCoreManagers() {
     meetingDetectionEngine,
     audioTapManager,
     linuxPortalAudioManager,
+    mcpManager,
     getTrayManager: () => trayManager,
   });
 }
@@ -342,6 +346,15 @@ function initializeDeferredManagers() {
     );
   });
   clipboardManager.preWarmAccessibility();
+  if (mcpManager) {
+    mcpManager.connectAll().catch(() => {});
+    mcpManager.on("server-status-changed", (data) => {
+      const windows = require("electron").BrowserWindow.getAllWindows();
+      windows.forEach((win) => {
+        if (!win.isDestroyed()) win.webContents.send("mcp-server-status-changed", data);
+      });
+    });
+  }
   trayManager = new TrayManager();
   globeKeyManager = new GlobeKeyManager();
 
@@ -1185,6 +1198,9 @@ if (gotSingleInstanceLock) {
     }
     if (linuxPortalAudioManager) {
       linuxPortalAudioManager.stop().catch(() => {});
+    }
+    if (mcpManager) {
+      mcpManager.disconnectAll().catch(() => {});
     }
     if (ipcHandlers) {
       ipcHandlers._cleanupTextEditMonitor();

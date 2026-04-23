@@ -740,4 +740,22 @@ contextBridge.exposeInMainWorld("electronAPI", {
   getUpdateNotificationData: () => ipcRenderer.invoke("get-update-notification-data"),
   updateNotificationReady: () => ipcRenderer.invoke("update-notification-ready"),
   updateNotificationRespond: (action) => ipcRenderer.invoke("update-notification-respond", action),
+
+  // ─── MCP server management ──────────────────────────────────────────────
+  mcpListServers: () => ipcRenderer.invoke("mcp-list-servers"),
+  mcpAddServer: (config) => ipcRenderer.invoke("mcp-add-server", config),
+  mcpUpdateServer: (id, patch) => ipcRenderer.invoke("mcp-update-server", id, patch),
+  mcpDeleteServer: (id) => ipcRenderer.invoke("mcp-delete-server", id),
+  mcpToggleServer: (id, enabled) => ipcRenderer.invoke("mcp-toggle-server", id, enabled),
+  mcpListTools: (serverIds) => ipcRenderer.invoke("mcp-list-tools", serverIds),
+  mcpCallTool: (serverId, toolName, args) =>
+    ipcRenderer.invoke("mcp-call-tool", serverId, toolName, args),
+  mcpGetConversationServers: (conversationId) =>
+    ipcRenderer.invoke("mcp-get-conversation-servers", conversationId),
+  mcpSetConversationServers: (conversationId, serverIds) =>
+    ipcRenderer.invoke("mcp-set-conversation-servers", conversationId, serverIds),
+  onMcpServerStatusChanged: registerListener(
+    "mcp-server-status-changed",
+    (callback) => (_event, data) => callback(data)
+  ),
 });

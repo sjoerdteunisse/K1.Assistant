@@ -112,6 +112,7 @@ class IPCHandlers {
     this.meetingDetectionEngine = managers.meetingDetectionEngine;
     this.audioTapManager = managers.audioTapManager;
     this.linuxPortalAudioManager = managers.linuxPortalAudioManager;
+    this.mcpManager = managers.mcpManager || null;
     this.sessionId = crypto.randomUUID();
     this.assemblyAiStreaming = null;
     this.deepgramStreaming = null;
@@ -5504,6 +5505,135 @@ class IPCHandlers {
       } catch (error) {
         debugLogger.error("Failed to pick folder", { error: error.message }, "note-files");
         return { canceled: true };
+      }
+    });
+
+    // ─── MCP server management ──────────────────────────────────────────────
+
+    ipcMain.handle("mcp-list-servers", async () => {
+      try {
+        const servers = this.databaseManager.getMcpServers();
+        const statuses = this.mcpManager ? this.mcpManager.getAllStatuses() : {};
+        return servers.map((s) => ({
+          ...s,
+          args: s.args ? JSON.parse(s.args) : [],
+          headers: s.headers ? JSON.parse(s.headers) : {},
+          env_vars: s.env_vars ? JSON.parse(s.env_vars) : {},
+          status: statuses[s.id] || (s.enabled ? "disconnected" : "disabled"),
+        }));
+      } catch (error) {
+        debugLogger.error("[mcp] mcp-list-servers failed", { error: error.message }, "mcp");
+        return [];
+      }
+    });
+
+    ipcMain.handle("mcp-add-server", async (_event, config) => {
+      try {
+        const server = this.databaseManager.addMcpServer(config);
+        if (server.enabled && this.mcpManager) {
+          this.mcpManager.connect(server).catch(() => {});
+        }
+        return { success: true, server };
+      } catch (error) {
+        debugLogger.error("[mcp] mcp-add-server failed", { error: error.message }, "mcp");
+        return { success: false, error: error.message };
+      }
+    });
+
+    ipcMain.handle("mcp-update-server", async (_event, id, patch) => {
+      try {
+        const server = this.databaseManager.updateMcpServer(id, patch);
+        if (this.mcpManager) {
+          // Reconnect to pick up config changes
+          await this.mcpManager.disconnect(id).catch(() => {});
+          if (server.enabled) {
+            this.mcpManager.connect(server).catch(() => {});
+          }
+        }
+        return { success: true, server };
+      } catch (error) {
+        debugLogger.error("[mcp] mcp-update-server failed", { error: error.message }, "mcp");
+        return { success: false, error: error.message };
+      }
+    });
+
+    ipcMain.handle("mcp-delete-server", async (_event, id) => {
+      try {
+        if (this.mcpManager) {
+          await this.mcpManager.disconnect(id).catch(() => {});
+        }
+        this.databaseManager.deleteMcpServer(id);
+        return { success: true };
+      } catch (error) {
+        debugLogger.error("[mcp] mcp-delete-server failed", { error: error.message }, "mcp");
+        return { success: false, error: error.message };
+      }
+    });
+
+    ipcMain.handle("mcp-toggle-server", async (_event, id, enabled) => {
+      try {
+        const server = this.databaseManager.updateMcpServer(id, { enabled: enabled ? 1 : 0 });
+        if (this.mcpManager) {
+          if (enabled) {
+            this.mcpManager.connect(server).catch(() => {});
+          } else {
+            await this.mcpManager.disconnect(id).catch(() => {});
+          }
+        }
+        return { success: true };
+      } catch (error) {
+        debugLogger.error("[mcp] mcp-toggle-server failed", { error: error.message }, "mcp");
+        return { success: false, error: error.message };
+      }
+    });
+
+    ipcMain.handle("mcp-list-tools", async (_event, serverIds) => {
+      try {
+        if (!this.mcpManager) return [];
+        return await this.mcpManager.listTools(serverIds);
+      } catch (error) {
+        debugLogger.error("[mcp] mcp-list-tools failed", { error: error.message }, "mcp");
+        return [];
+      }
+    });
+
+    ipcMain.handle("mcp-call-tool", async (_event, serverId, toolName, args) => {
+      try {
+        if (!this.mcpManager) throw new Error("MCP manager not initialized");
+        return await this.mcpManager.callTool(serverId, toolName, args);
+      } catch (error) {
+        debugLogger.error(
+          "[mcp] mcp-call-tool failed",
+          { serverId, toolName, error: error.message },
+          "mcp"
+        );
+        return { isError: true, content: [{ type: "text", text: error.message }] };
+      }
+    });
+
+    ipcMain.handle("mcp-get-conversation-servers", (_event, conversationId) => {
+      try {
+        return this.databaseManager.getConversationMcpServers(conversationId);
+      } catch (error) {
+        debugLogger.error(
+          "[mcp] mcp-get-conversation-servers failed",
+          { error: error.message },
+          "mcp"
+        );
+        return [];
+      }
+    });
+
+    ipcMain.handle("mcp-set-conversation-servers", (_event, conversationId, serverIds) => {
+      try {
+        return this.databaseManager.setConversationMcpServers(conversationId, serverIds);
+      } catch (error) {
+        debugLogger.error(
+          "[mcp] mcp-set-conversation-servers failed",
+          { error: error.message },
+          "mcp"
+        );
+        return { success: false, error: error.message };
       }
     });
   }

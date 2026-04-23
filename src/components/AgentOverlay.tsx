@@ -4,9 +4,11 @@ import { cn } from "./lib/utils";
 import { AgentTitleBar } from "./agent/AgentTitleBar";
 import { AgentChat } from "./agent/AgentChat";
 import { AgentInput } from "./agent/AgentInput";
+import { McpServerSelector } from "./chat/McpServerSelector";
 import AudioManager from "../helpers/audioManager";
 import { useChatPersistence } from "./chat/useChatPersistence";
 import { useChatStreaming } from "./chat/useChatStreaming";
+import { useMcpServers } from "../hooks/useMcpServers";
 import type { Message } from "./chat/types";
 
 const MIN_HEIGHT = 200;
@@ -18,12 +20,29 @@ export default function AgentOverlay() {
   const audioManagerRef = useRef<InstanceType<typeof AudioManager> | null>(null);
   const agentStateRef = useRef<string>("idle");
 
+  const { servers, serverStatuses } = useMcpServers();
+  const [activeMcpServerIds, setActiveMcpServerIds] = useState<string[]>(() =>
+    servers.filter((s) => s.enabled).map((s) => s.id)
+  );
+
+  // Keep activeMcpServerIds synced with newly enabled servers
+  useEffect(() => {
+    setActiveMcpServerIds(servers.filter((s) => s.enabled).map((s) => s.id));
+  }, [servers]);
+
+  const handleMcpToggle = useCallback((serverId: string) => {
+    setActiveMcpServerIds((prev) =>
+      prev.includes(serverId) ? prev.filter((id) => id !== serverId) : [...prev, serverId]
+    );
+  }, []);
+
   const persistence = useChatPersistence();
   const { messages, setMessages, handleNewChat: persistenceNewChat } = persistence;
 
   const streaming = useChatStreaming({
     messages,
     setMessages,
+    activeMcpServerIds,
     onStreamComplete: (_assistantId, content, toolCalls) => {
       persistence.saveAssistantMessage(content, toolCalls);
     },
@@ -204,6 +223,15 @@ export default function AgentOverlay() {
           partialTranscript={partialTranscript}
           onTextSubmit={handleTranscriptionComplete}
           onCancel={streaming.cancelStream}
+          actionSlot={
+            <McpServerSelector
+              servers={servers}
+              serverStatuses={serverStatuses}
+              activeMcpServerIds={activeMcpServerIds}
+              onToggle={handleMcpToggle}
+              onManage={() => window.electronAPI?.openControlPanel?.()}
+            />
+          }
         />
       </div>
 

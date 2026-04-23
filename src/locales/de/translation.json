@@ -143,7 +143,8 @@
     "private": "Privat",
     "tap": "Tippen",
     "close": "Schließen",
-    "dismiss": "Verwerfen"
+    "dismiss": "Verwerfen",
+    "save": "Speichern"
   },
   "onboarding": {
     "steps": {
@@ -1798,6 +1799,22 @@
     "speaker": {
       "you": "Du",
       "them": "Gegenüber"
+    },
+    "tasks": {
+      "addTask": "Aufgabe hinzufügen",
+      "progress": "{{done}}/{{total}} Aufgaben erledigt",
+      "cycleStatus": "Status: {{status}} — klicken",
+      "addDueDate": "Fälligkeit & Uhrzeit festlegen",
+      "changeDueDate": "Fälligkeit & Uhrzeit ändern",
+      "removeDueDate": "Datum entfernen",
+      "statusOpen": "Offen",
+      "statusInProgress": "In Bearbeitung",
+      "statusDone": "Erledigt",
+      "togglePriority": "Priorität: {{priority}} — klicken",
+      "priorityNone": "Keine Priorität",
+      "priorityLow": "Niedrig",
+      "priorityMedium": "Mittel",
+      "priorityHigh": "Hoch"
     }
   },
   "dictionary": {
@@ -1830,7 +1847,8 @@
     "learnMore": "Mehr erfahren",
     "defaultUser": "Benutzer",
     "notSignedIn": "Nicht angemeldet",
-    "chat": "Chat"
+    "chat": "Chat",
+    "mcpServers": "MCP-Server"
   },
   "chat": {
     "newChat": "Neuer Chat",
@@ -2132,5 +2150,52 @@
     "copy": "Kopieren",
     "copied": "Kopiert",
     "waitingForInput": "Sag etwas..."
+  },
+  "mcp": {
+    "selector": {
+      "tooltip": "MCP-Server",
+      "title": "MCP-Server",
+      "manage": "Server verwalten"
+    },
+    "status": {
+      "connected": "Verbunden",
+      "connecting": "Verbinde...",
+      "error": "Fehler",
+      "disconnected": "Getrennt",
+      "disabled": "Deaktiviert"
+    },
+    "form": {
+      "name": "Name",
+      "namePlaceholder": "Mein MCP-Server",
+      "description": "Beschreibung",
+      "descriptionPlaceholder": "Was macht dieser Server?",
+      "transport": "Transport",
+      "command": "Befehl",
+      "args": "Argumente",
+      "url": "URL"
+    },
+    "server": {
+      "enable": "Aktivieren",
+      "disable": "Deaktivieren",
+      "delete": "Server löschen"
+    },
+    "settings": {
+      "title": "MCP-Server",
+      "subtitle": "Verbinde externe Tools über das Model Context Protocol",
+      "addServer": "Server hinzufügen",
+      "refresh": "Aktualisieren",
+      "loading": "Server werden geladen...",
+      "empty": "Keine MCP-Server konfiguriert",
+      "emptyHint": "Füge einen Server hinzu",
+      "installed": "Installiert"
+    },
+    "catalog": {
+      "title": "Empfohlene Server",
+      "recommended": "Empfohlen",
+      "add": "Hinzufügen",
+      "adding": "Hinzufügen…",
+      "added": "Hinzugefügt",
+      "hint": "Erfordert npx (Node.js) im PATH"
+    }
   }
 }

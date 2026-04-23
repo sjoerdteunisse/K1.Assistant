@@ -163,7 +163,10 @@ const TOOL_INSTRUCTIONS: Record<string, string> = {
     "Use get_calendar_events to check the user's schedule, upcoming meetings, or calendar events.",
 };
 
-export function getAgentSystemPrompt(availableTools?: string[], noteContext?: string): string {
+export function getAgentSystemPrompt(
+  availableTools?: Array<string | { name: string; description?: string }>,
+  noteContext?: string
+): string {
   if (typeof window !== "undefined" && window.localStorage) {
     const custom = window.localStorage.getItem("agentSystemPrompt");
     if (custom) return custom;
@@ -172,7 +175,11 @@ export function getAgentSystemPrompt(availableTools?: string[], noteContext?: st
   let prompt = DEFAULT_AGENT_SYSTEM_PROMPT;
 
   if (availableTools && availableTools.length > 0) {
-    const toolLines = availableTools.map((name) => TOOL_INSTRUCTIONS[name]).filter(Boolean);
+    const toolLines = availableTools.map((entry) => {
+      const name = typeof entry === "string" ? entry : entry.name;
+      const description = typeof entry === "object" ? entry.description : undefined;
+      return TOOL_INSTRUCTIONS[name] ?? (description ? `Use ${name} when relevant: ${description}.` : null);
+    }).filter(Boolean);
     if (toolLines.length > 0) {
       prompt += "\n\nYou have access to tools. " + toolLines.join(" ");
     }

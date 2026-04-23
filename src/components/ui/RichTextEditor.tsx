@@ -2,9 +2,9 @@ import { useEffect, useRef, useCallback, type MutableRefObject } from "react";
 import { useEditor, EditorContent, type Editor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import TaskList from "@tiptap/extension-task-list";
-import TaskItem from "@tiptap/extension-task-item";
 import Placeholder from "@tiptap/extension-placeholder";
 import { Markdown } from "tiptap-markdown";
+import { TaskItemExtended } from "../../extensions/TaskItemExtended";
 import { cn } from "../lib/utils";
 
 interface RichTextEditorProps {
@@ -35,7 +35,7 @@ export function RichTextEditor({
         orderedList: { keepMarks: true },
       }),
       TaskList,
-      TaskItem.configure({ nested: true }),
+      TaskItemExtended.configure({ nested: true }),
       Placeholder.configure({
         placeholder: placeholder || "",
         emptyEditorClass: "is-editor-empty",

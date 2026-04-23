@@ -143,7 +143,8 @@
     "private": "Privé",
     "tap": "Appui",
     "close": "Fermer",
-    "dismiss": "Ignorer"
+    "dismiss": "Ignorer",
+    "save": "Enregistrer"
   },
   "onboarding": {
     "steps": {
@@ -1551,7 +1552,8 @@
     "learnMore": "En savoir plus",
     "defaultUser": "Utilisateur",
     "notSignedIn": "Non connecté",
-    "chat": "Chat"
+    "chat": "Chat",
+    "mcpServers": "Serveurs MCP"
   },
   "chat": {
     "newChat": "Nouveau chat",
@@ -1858,6 +1860,22 @@
     "speaker": {
       "you": "Vous",
       "them": "Eux"
+    },
+    "tasks": {
+      "addTask": "Ajouter une tâche",
+      "progress": "{{done}}/{{total}} terminées",
+      "cycleStatus": "Statut: {{status}}",
+      "addDueDate": "Définir date et heure",
+      "changeDueDate": "Modifier date et heure",
+      "removeDueDate": "Supprimer",
+      "statusOpen": "Ouverte",
+      "statusInProgress": "En cours",
+      "statusDone": "Terminée",
+      "togglePriority": "Priorité: {{priority}}",
+      "priorityNone": "Sans priorité",
+      "priorityLow": "Faible",
+      "priorityMedium": "Moyenne",
+      "priorityHigh": "Haute"
     }
   },
   "dictionary": {
@@ -2132,5 +2150,52 @@
     "copy": "Copier",
     "copied": "Copié",
     "waitingForInput": "Dites quelque chose..."
+  },
+  "mcp": {
+    "selector": {
+      "tooltip": "Serveurs MCP",
+      "title": "Serveurs MCP",
+      "manage": "Gérer les serveurs"
+    },
+    "status": {
+      "connected": "Connecté",
+      "connecting": "Connexion...",
+      "error": "Erreur",
+      "disconnected": "Déconnecté",
+      "disabled": "Désactivé"
+    },
+    "form": {
+      "name": "Nom",
+      "namePlaceholder": "Mon serveur MCP",
+      "description": "Description",
+      "descriptionPlaceholder": "Que fait ce serveur ?",
+      "transport": "Transport",
+      "command": "Commande",
+      "args": "Arguments",
+      "url": "URL"
+    },
+    "server": {
+      "enable": "Activer",
+      "disable": "Désactiver",
+      "delete": "Supprimer le serveur"
+    },
+    "settings": {
+      "title": "Serveurs MCP",
+      "subtitle": "Connectez des outils externes via le Model Context Protocol",
+      "addServer": "Ajouter un serveur",
+      "refresh": "Actualiser",
+      "loading": "Chargement des serveurs...",
+      "empty": "Aucun serveur MCP configuré",
+      "emptyHint": "Ajoutez un serveur",
+      "installed": "Installés"
+    },
+    "catalog": {
+      "title": "Serveurs suggérés",
+      "recommended": "Recommandé",
+      "add": "Ajouter",
+      "adding": "Ajout…",
+      "added": "Ajouté",
+      "hint": "Nécessite npx (Node.js) dans le PATH"
+    }
   }
 }

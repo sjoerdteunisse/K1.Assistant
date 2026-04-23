@@ -143,7 +143,8 @@
     "private": "隐私",
     "tap": "点按",
     "close": "关闭",
-    "dismiss": "忽略"
+    "dismiss": "忽略",
+    "save": "保存"
   },
   "onboarding": {
     "steps": {
@@ -1004,7 +1005,12 @@
           "annualEquivalent": "$16.67",
           "includesPrefix": "所有 Pro 功能 +",
           "badge": "最受欢迎",
-          "features": ["无限会议录制", "代理模式", "与您的数据对话（即将推出）", "优先支持"],
+          "features": [
+            "无限会议录制",
+            "代理模式",
+            "与您的数据对话（即将推出）",
+            "优先支持"
+          ],
           "cta": "开始使用",
           "switchToAnnual": "切换为年付"
         },
@@ -1793,6 +1799,22 @@
     "speaker": {
       "you": "你",
       "them": "对方"
+    },
+    "tasks": {
+      "addTask": "添加任务",
+      "progress": "{{done}}/{{total}} 已完成",
+      "cycleStatus": "状态: {{status}}",
+      "addDueDate": "设置日期和时间",
+      "changeDueDate": "更改日期和时间",
+      "removeDueDate": "移除日期",
+      "statusOpen": "未开始",
+      "statusInProgress": "进行中",
+      "statusDone": "已完成",
+      "togglePriority": "优先级: {{priority}}",
+      "priorityNone": "无优先级",
+      "priorityLow": "低",
+      "priorityMedium": "中",
+      "priorityHigh": "高"
     }
   },
   "dictionary": {
@@ -1825,7 +1847,8 @@
     "learnMore": "了解更多",
     "defaultUser": "用户",
     "notSignedIn": "未登录",
-    "chat": "聊天"
+    "chat": "聊天",
+    "mcpServers": "MCP 服务器"
   },
   "chat": {
     "newChat": "新对话",
@@ -2127,5 +2150,52 @@
     "copy": "复制",
     "copied": "已复制",
     "waitingForInput": "说点什么..."
+  },
+  "mcp": {
+    "selector": {
+      "tooltip": "MCP 服务器",
+      "title": "MCP 服务器",
+      "manage": "管理服务器"
+    },
+    "status": {
+      "connected": "已连接",
+      "connecting": "连接中",
+      "error": "错误",
+      "disconnected": "已断开",
+      "disabled": "已禁用"
+    },
+    "form": {
+      "name": "名称",
+      "namePlaceholder": "我的 MCP 服务器",
+      "description": "描述",
+      "descriptionPlaceholder": "这个服务器有什么用？",
+      "transport": "传输方式",
+      "command": "命令",
+      "args": "参数",
+      "url": "URL"
+    },
+    "server": {
+      "enable": "启用",
+      "disable": "禁用",
+      "delete": "删除服务器"
+    },
+    "settings": {
+      "title": "MCP 服务器",
+      "subtitle": "通过 Model Context Protocol 连接外部工具",
+      "addServer": "添加服务器",
+      "refresh": "刷新",
+      "loading": "正在加载...",
+      "empty": "未配置 MCP 服务器",
+      "emptyHint": "添加服务器以访问外部工具",
+      "installed": "已安装"
+    },
+    "catalog": {
+      "title": "推荐服务器",
+      "recommended": "推荐",
+      "add": "添加",
+      "adding": "添加中…",
+      "added": "已添加",
+      "hint": "需要在 PATH 中安装 npx (Node.js)"
+    }
   }
 }

@@ -31,6 +31,7 @@ const PersonalNotesView = React.lazy(() => import("./notes/PersonalNotesView"));
 const DictionaryView = React.lazy(() => import("./DictionaryView"));
 const UploadAudioView = React.lazy(() => import("./notes/UploadAudioView"));
 const ChatView = React.lazy(() => import("./chat/ChatView"));
+const McpServersSettings = React.lazy(() => import("./settings/McpServersSettings"));
 const CommandSearch = React.lazy(() => import("./CommandSearch"));
 
 export default function ControlPanel() {
@@ -642,7 +643,7 @@ export default function ControlPanel() {
             )}
             {activeView === "chat" && (
               <Suspense fallback={null}>
-                <ChatView />
+                <ChatView onNavigateToMcpSettings={() => setActiveView("mcp-servers")} />
               </Suspense>
             )}
             {activeView === "personal-notes" && (
@@ -677,6 +678,11 @@ export default function ControlPanel() {
                     setShowSettings(true);
                   }}
                 />
+              </Suspense>
+            )}
+            {activeView === "mcp-servers" && (
+              <Suspense fallback={null}>
+                <McpServersSettings />
               </Suspense>
             )}
          

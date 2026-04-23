@@ -4,11 +4,13 @@ import { useChatPersistence } from "./useChatPersistence";
 import { useChatStreaming } from "./useChatStreaming";
 import { ChatMessages } from "./ChatMessages";
 import { ChatInput } from "./ChatInput";
+import { McpServerSelector } from "./McpServerSelector";
 import { ChatEmptyIllustration } from "./ChatEmptyIllustration";
 import ConversationList from "./ConversationList";
 import EmptyChatState from "./EmptyChatState";
 import { ConfirmDialog } from "../ui/dialog";
 import { useDialogs } from "../../hooks/useDialogs";
+import { useMcpServers } from "../../hooks/useMcpServers";
 import { getCachedPlatform } from "../../utils/platform";
 
 const CommandSearch = lazy(() => import("../CommandSearch"));
@@ -27,13 +29,23 @@ function NewChatEmptyState() {
   );
 }
 
-export default function ChatView() {
+export default function ChatView({
+  onNavigateToMcpSettings,
+}: {
+  onNavigateToMcpSettings?: () => void;
+} = {}) {
   const { t } = useTranslation();
   const [activeConversationId, setActiveConversationId] = useState<number | null>(null);
   const [isNewChat, setIsNewChat] = useState(true);
   const [refreshKey, setRefreshKey] = useState(0);
   const [showSearch, setShowSearch] = useState(false);
   const { confirmDialog, showConfirmDialog, hideConfirmDialog } = useDialogs();
+  const { servers, serverStatuses, getConversationServers, setConversationServers } =
+    useMcpServers();
+  // Start with all enabled servers active so tools work without manual toggling
+  const [activeMcpServerIds, setActiveMcpServerIds] = useState<string[]>(() =>
+    servers.filter((s) => s.enabled).map((s) => s.id)
+  );
 
   const persistence = useChatPersistence({
     conversationId: activeConversationId,
@@ -46,6 +58,7 @@ export default function ChatView() {
   const streaming = useChatStreaming({
     messages: persistence.messages,
     setMessages: persistence.setMessages,
+    activeMcpServerIds,
     onStreamComplete: (_id, content, toolCalls) => {
       persistence.saveAssistantMessage(content, toolCalls);
     },
@@ -56,16 +69,20 @@ export default function ChatView() {
       if (id === activeConversationId) return;
       setActiveConversationId(id);
       setIsNewChat(false);
+      const mcpIds = await getConversationServers(id);
+      setActiveMcpServerIds(mcpIds);
       await persistence.loadConversation(id);
     },
-    [activeConversationId, persistence]
+    [activeConversationId, persistence, getConversationServers]
   );
 
   const handleNewChat = useCallback(() => {
     setActiveConversationId(null);
     setIsNewChat(true);
+    // Auto-enable all enabled MCP servers for new chats so tools work without manual toggling
+    setActiveMcpServerIds(servers.filter((s) => s.enabled).map((s) => s.id));
     persistence.handleNewChat();
-  }, [persistence]);
+  }, [persistence, servers]);
 
   const handleTextSubmit = useCallback(
     async (text: string) => {
@@ -85,11 +102,21 @@ export default function ChatView() {
       persistence.setMessages((prev) => [...prev, userMsg]);
       await persistence.saveUserMessage(text);
 
+      if (activeMcpServerIds.length > 0 && convId) {
+        setConversationServers(convId, activeMcpServerIds).catch(() => {});
+      }
+
       const allMessages = [...persistence.messages, userMsg];
       await streaming.sendToAI(text, allMessages);
     },
-    [activeConversationId, persistence, streaming]
+    [activeConversationId, persistence, streaming, activeMcpServerIds, setConversationServers]
   );
+
+  const handleMcpToggle = useCallback((serverId: string) => {
+    setActiveMcpServerIds((prev) =>
+      prev.includes(serverId) ? prev.filter((id) => id !== serverId) : [...prev, serverId]
+    );
+  }, []);
 
   const handleArchive = useCallback(
     async (id: number) => {
@@ -131,6 +158,13 @@ export default function ChatView() {
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [handleNewChat]);
+
+  // When viewing a new chat, keep activeMcpServerIds synced with servers that become enabled
+  useEffect(() => {
+    if (isNewChat && activeConversationId === null) {
+      setActiveMcpServerIds(servers.filter((s) => s.enabled).map((s) => s.id));
+    }
+  }, [servers, isNewChat, activeConversationId]);
 
   const hasActiveChat =
     activeConversationId !== null || persistence.messages.length > 0 || isNewChat;
@@ -177,6 +211,15 @@ export default function ChatView() {
                 onTextSubmit={handleTextSubmit}
                 onCancel={streaming.cancelStream}
                 autoFocus={isNewChat}
+                actionSlot={
+                  <McpServerSelector
+                    servers={servers}
+                    serverStatuses={serverStatuses}
+                    activeMcpServerIds={activeMcpServerIds}
+                    onToggle={handleMcpToggle}
+                    onManage={() => onNavigateToMcpSettings?.()}
+                  />
+                }
               />
             </>
           ) : (

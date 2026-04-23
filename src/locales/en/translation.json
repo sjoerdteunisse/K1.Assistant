@@ -143,7 +143,8 @@
     "private": "Private",
     "tap": "Tap",
     "close": "Close",
-    "dismiss": "Dismiss"
+    "dismiss": "Dismiss",
+    "save": "Save"
   },
   "onboarding": {
     "steps": {
@@ -1599,7 +1600,55 @@
     "learnMore": "Learn more",
     "defaultUser": "User",
     "notSignedIn": "Not signed in",
-    "chat": "Chat"
+    "chat": "Chat",
+    "mcpServers": "MCP Servers"
+  },
+  "mcp": {
+    "selector": {
+      "tooltip": "MCP servers",
+      "title": "MCP Servers",
+      "manage": "Manage servers"
+    },
+    "status": {
+      "connected": "Connected",
+      "connecting": "Connecting",
+      "error": "Error",
+      "disconnected": "Disconnected",
+      "disabled": "Disabled"
+    },
+    "form": {
+      "name": "Name",
+      "namePlaceholder": "My MCP Server",
+      "description": "Description",
+      "descriptionPlaceholder": "What does this server do?",
+      "transport": "Transport",
+      "command": "Command",
+      "args": "Arguments",
+      "url": "URL"
+    },
+    "server": {
+      "enable": "Enable",
+      "disable": "Disable",
+      "delete": "Delete server"
+    },
+    "settings": {
+      "title": "MCP Servers",
+      "subtitle": "Connect external tools and data sources via the Model Context Protocol",
+      "addServer": "Add server",
+      "refresh": "Refresh",
+      "loading": "Loading servers...",
+      "empty": "No MCP servers configured",
+      "emptyHint": "Add a server to give the AI agent access to external tools",
+      "installed": "Installed"
+    },
+    "catalog": {
+      "title": "Featured Servers",
+      "recommended": "Recommended",
+      "add": "Add",
+      "adding": "Adding…",
+      "added": "Added",
+      "hint": "Requires npx (Node.js) on your PATH"
+    }
   },
   "chat": {
     "newChat": "New chat",
@@ -1906,6 +1955,22 @@
     "speaker": {
       "you": "You",
       "them": "Them"
+    },
+    "tasks": {
+      "addTask": "Add task",
+      "progress": "{{done}}/{{total}} tasks done",
+      "cycleStatus": "Status: {{status}} — click to change",
+      "addDueDate": "Set due date & time",
+      "changeDueDate": "Change due date & time",
+      "removeDueDate": "Remove due date",
+      "statusOpen": "Open",
+      "statusInProgress": "In progress",
+      "statusDone": "Done",
+      "togglePriority": "Priority: {{priority}} — click to change",
+      "priorityNone": "No priority",
+      "priorityLow": "Low priority",
+      "priorityMedium": "Medium priority",
+      "priorityHigh": "High priority"
     }
   },
   "dictionary": {
@@ -2062,7 +2127,6 @@
       "invalidArgs": "Invalid tool arguments for {{name}}"
     }
   },
-
   "notesView": {
     "searchPlaceholder": "Search notes…",
     "newNote": "New Note",

@@ -143,7 +143,8 @@
     "private": "私密",
     "tap": "點按",
     "close": "關閉",
-    "dismiss": "忽略"
+    "dismiss": "忽略",
+    "save": "儲存"
   },
   "onboarding": {
     "steps": {
@@ -1004,7 +1005,12 @@
           "annualEquivalent": "$16.67",
           "includesPrefix": "所有 Pro 功能 +",
           "badge": "最熱門",
-          "features": ["無限會議錄製", "代理模式", "與您的資料對話（即將推出）", "優先支援"],
+          "features": [
+            "無限會議錄製",
+            "代理模式",
+            "與您的資料對話（即將推出）",
+            "優先支援"
+          ],
           "cta": "開始使用",
           "switchToAnnual": "切換為年付"
         },
@@ -1793,6 +1799,22 @@
     "speaker": {
       "you": "你",
       "them": "對方"
+    },
+    "tasks": {
+      "addTask": "新增任務",
+      "progress": "{{done}}/{{total}} 已完成",
+      "cycleStatus": "狀態: {{status}}",
+      "addDueDate": "設定日期和時間",
+      "changeDueDate": "更改日期和時間",
+      "removeDueDate": "移除日期",
+      "statusOpen": "未開始",
+      "statusInProgress": "進行中",
+      "statusDone": "已完成",
+      "togglePriority": "優先級: {{priority}}",
+      "priorityNone": "無優先級",
+      "priorityLow": "低",
+      "priorityMedium": "中",
+      "priorityHigh": "高"
     }
   },
   "dictionary": {
@@ -1825,7 +1847,8 @@
     "learnMore": "瞭解更多",
     "defaultUser": "使用者",
     "notSignedIn": "尚未登入",
-    "chat": "聊天"
+    "chat": "聊天",
+    "mcpServers": "MCP 伺服器"
   },
   "chat": {
     "newChat": "新對話",
@@ -2127,5 +2150,52 @@
     "copy": "複製",
     "copied": "已複製",
     "waitingForInput": "說點什麼..."
+  },
+  "mcp": {
+    "selector": {
+      "tooltip": "MCP 伺服器",
+      "title": "MCP 伺服器",
+      "manage": "管理伺服器"
+    },
+    "status": {
+      "connected": "已連接",
+      "connecting": "連接中",
+      "error": "錯誤",
+      "disconnected": "已斷開",
+      "disabled": "已停用"
+    },
+    "form": {
+      "name": "名稱",
+      "namePlaceholder": "我的 MCP 伺服器",
+      "description": "描述",
+      "descriptionPlaceholder": "這個伺服器有什麼用？",
+      "transport": "傳輸方式",
+      "command": "命令",
+      "args": "參數",
+      "url": "URL"
+    },
+    "server": {
+      "enable": "啟用",
+      "disable": "停用",
+      "delete": "刪除伺服器"
+    },
+    "settings": {
+      "title": "MCP 伺服器",
+      "subtitle": "透過 Model Context Protocol 連接外部工具",
+      "addServer": "新增伺服器",
+      "refresh": "重新整理",
+      "loading": "正在載入...",
+      "empty": "未設定 MCP 伺服器",
+      "emptyHint": "新增伺服器以存取外部工具",
+      "installed": "已安裝"
+    },
+    "catalog": {
+      "title": "推薦伺服器",
+      "recommended": "推薦",
+      "add": "新增",
+      "adding": "新增中…",
+      "added": "已新增",
+      "hint": "需要在 PATH 中安裝 npx (Node.js)"
+    }
   }
 }
