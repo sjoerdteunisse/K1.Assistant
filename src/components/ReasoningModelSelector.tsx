@@ -685,8 +685,8 @@ export default function ReasoningModelSelector({
     setMmprojDownloading(true);
     setMmprojProgress(0);
 
-    const unsubscribe = window.electronAPI?.onModelDownloadProgress?.((data: { modelId: string; progress: number; isMmproj?: boolean }) => {
-      if (data.modelId === reasoningModel && data.isMmproj) {
+    const unsubscribe = window.electronAPI?.onModelDownloadProgress?.((_event: unknown, data: { modelId: string; progress: number; isMmproj?: boolean }) => {
+      if (data?.modelId === reasoningModel && data?.isMmproj) {
         setMmprojProgress(data.progress);
       }
     });
