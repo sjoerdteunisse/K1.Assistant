@@ -131,6 +131,7 @@ class IPCHandlers {
     this._setupAudioCleanup();
     this._logDetectedGpus();
     this.setupHandlers();
+    this.setupScreenshotHandlers();
 
     if (this.whisperManager?.serverManager) {
       this.whisperManager.serverManager.on("cuda-fallback", () => {
@@ -1859,6 +1860,34 @@ class IPCHandlers {
                 progress,
                 downloadedSize,
                 totalSize,
+              });
+            }
+          }
+        );
+        return { success: true, path: result };
+      } catch (error) {
+        return {
+          success: false,
+          error: error.message,
+          code: error.code,
+          details: error.details,
+        };
+      }
+    });
+
+    ipcMain.handle("model-download-mmproj", async (event, modelId) => {
+      try {
+        const modelManager = require("./modelManagerBridge").default;
+        const result = await modelManager.downloadMmproj(
+          modelId,
+          (progress, downloadedSize, totalSize) => {
+            if (!event.sender.isDestroyed()) {
+              event.sender.send("model-download-progress", {
+                modelId,
+                progress,
+                downloadedSize,
+                totalSize,
+                isMmproj: true,
               });
             }
           }
@@ -5643,6 +5672,27 @@ class IPCHandlers {
     windows.forEach((win) => {
       if (!win.isDestroyed()) {
         win.webContents.send(channel, payload);
+      }
+    });
+  }
+
+  setupScreenshotHandlers() {
+    const { desktopCapturer } = require("electron");
+
+    ipcMain.handle("take-screenshot", async () => {
+      try {
+        const sources = await desktopCapturer.getSources({
+          types: ["screen"],
+          thumbnailSize: { width: 1920, height: 1080 },
+        });
+        if (!sources || sources.length === 0) {
+          return { success: false, error: "No screen sources found" };
+        }
+        const dataUrl = sources[0].thumbnail.toDataURL();
+        return { success: true, dataUrl };
+      } catch (error) {
+        debugLogger.error("Screenshot failed", { error: error.message }, "screenshot");
+        return { success: false, error: error.message };
       }
     });
   }

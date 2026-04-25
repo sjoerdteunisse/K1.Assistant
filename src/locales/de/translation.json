@@ -2008,7 +2008,12 @@
       "transcribing": "Transkribiert...",
       "thinking": "Denkt nach...",
       "typeMessage": "Nachricht eingeben...",
-      "send": "Senden"
+      "send": "Senden",
+      "takeScreenshot": "Screenshot aufnehmen",
+      "removeScreenshot": "Screenshot entfernen",
+      "screenshotAlt": "Angehängter Screenshot",
+      "vision": "Vision",
+      "multimodalModel": "Multimodales Modell geladen – Bildeingabe wird unterstützt"
     },
     "tools": {
       "search_notesStatus": "Notizen werden durchsucht...",

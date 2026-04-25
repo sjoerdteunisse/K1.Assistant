@@ -619,6 +619,12 @@ export default function ReasoningModelSelector({
   }, [selectedCloudProvider, hasCustomBase, normalizedCustomReasoningBase, loadRemoteModels]);
 
   const [downloadedModels, setDownloadedModels] = useState<Set<string>>(new Set());
+  const [mmprojInfo, setMmprojInfo] = useState<{ hasMmproj: boolean; mmprojDownloaded: boolean }>({
+    hasMmproj: false,
+    mmprojDownloaded: false,
+  });
+  const [mmprojDownloading, setMmprojDownloading] = useState(false);
+  const [mmprojProgress, setMmprojProgress] = useState(0);
 
   const loadDownloadedModels = useCallback(async () => {
     try {
@@ -638,9 +644,66 @@ export default function ReasoningModelSelector({
     return new Set<string>();
   }, []);
 
+  const checkMmprojStatus = useCallback(
+    async (modelId: string) => {
+      if (!modelId) {
+        setMmprojInfo({ hasMmproj: false, mmprojDownloaded: false });
+        return;
+      }
+      try {
+        const result = await window.electronAPI?.modelGetAll?.();
+        if (result && Array.isArray(result)) {
+          const model = result.find((m: { id: string }) => m.id === modelId);
+          if (model) {
+            setMmprojInfo({
+              hasMmproj: !!model.mmprojFileName,
+              mmprojDownloaded: !!model.mmprojDownloaded,
+            });
+            return;
+          }
+        }
+      } catch (error) {
+        logger.error("Failed to check mmproj status", { error }, "models");
+      }
+      setMmprojInfo({ hasMmproj: false, mmprojDownloaded: false });
+    },
+    []
+  );
+
+  useEffect(() => {
+    if (selectedMode === "local") {
+      checkMmprojStatus(reasoningModel);
+    }
+  }, [reasoningModel, selectedMode, checkMmprojStatus]);
+
   useEffect(() => {
     loadDownloadedModels();
   }, [loadDownloadedModels]);
+
+  const handleDownloadMmproj = useCallback(async () => {
+    if (!reasoningModel || mmprojDownloading) return;
+    setMmprojDownloading(true);
+    setMmprojProgress(0);
+
+    const unsubscribe = window.electronAPI?.onModelDownloadProgress?.((data: { modelId: string; progress: number; isMmproj?: boolean }) => {
+      if (data.modelId === reasoningModel && data.isMmproj) {
+        setMmprojProgress(data.progress);
+      }
+    });
+
+    try {
+      const result = await (window.electronAPI as any)?.modelDownloadMmproj?.(reasoningModel);
+      if (result?.success) {
+        setMmprojInfo((prev) => ({ ...prev, mmprojDownloaded: true }));
+      }
+    } catch (error) {
+      logger.error("Failed to download mmproj", { error }, "models");
+    } finally {
+      setMmprojDownloading(false);
+      setMmprojProgress(0);
+      if (typeof unsubscribe === "function") unsubscribe();
+    }
+  }, [reasoningModel, mmprojDownloading]);
 
   const handleModeChange = async (newMode: "cloud" | "local") => {
     setSelectedMode(newMode);
@@ -997,6 +1060,40 @@ export default function ReasoningModelSelector({
             colorScheme="purple"
             onDownloadComplete={loadDownloadedModels}
           />
+          {mmprojInfo.hasMmproj && !mmprojInfo.mmprojDownloaded && (
+            <div className="mx-3 mb-3 rounded-lg border border-violet-500/30 bg-violet-500/10 p-3">
+              <div className="flex items-center justify-between gap-2">
+                <div className="flex items-center gap-2 text-sm text-violet-300">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+                  <span>{t("agentMode.input.vision")} projector not downloaded</span>
+                </div>
+                {mmprojDownloading ? (
+                  <div className="flex items-center gap-2 text-xs text-violet-400">
+                    <span>{Math.round(mmprojProgress)}%</span>
+                    <div className="h-1.5 w-24 overflow-hidden rounded-full bg-violet-800">
+                      <div
+                        className="h-full rounded-full bg-violet-400 transition-all"
+                        style={{ width: `${mmprojProgress}%` }}
+                      />
+                    </div>
+                  </div>
+                ) : (
+                  <button
+                    onClick={handleDownloadMmproj}
+                    className="rounded-md bg-violet-600 px-2.5 py-1 text-xs font-medium text-white hover:bg-violet-500 active:bg-violet-700"
+                  >
+                    Download (~990MB)
+                  </button>
+                )}
+              </div>
+            </div>
+          )}
+          {mmprojInfo.hasMmproj && mmprojInfo.mmprojDownloaded && (
+            <div className="mx-3 mb-3 flex items-center gap-1.5 text-xs text-violet-400">
+              <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+              {t("agentMode.input.vision")} enabled
+            </div>
+          )}
           <GpuStatusBadge />
         </>
       )}

@@ -52,7 +52,7 @@ export interface ChatStreaming {
   agentState: AgentState;
   toolStatus: string;
   activeToolName: string;
-  sendToAI: (userText: string, allMessages: Message[]) => Promise<void>;
+  sendToAI: (userText: string, allMessages: Message[], imageDataUrl?: string) => Promise<void>;
   cancelStream: () => void;
 }
 
@@ -93,7 +93,7 @@ export function useChatStreaming({
   }, []);
 
   const sendToAI = useCallback(
-    async (userText: string, allMessages: Message[]) => {
+    async (userText: string, allMessages: Message[], imageDataUrl?: string) => {
       setAgentState("thinking");
 
       const settings = getSettings();
@@ -137,7 +137,21 @@ export function useChatStreaming({
 
       const llmMessages = [
         { role: "system", content: systemPrompt },
-        ...allMessages.slice(-20).map((m) => ({ role: m.role, content: m.content })),
+        ...allMessages.slice(-20).map((m) => {
+          // Attach screenshot image to the last user message as multi-part content
+          if (m.imageDataUrl && m.role === "user") {
+            // data URL format: "data:<mimeType>;base64,<base64data>"
+            const dataUrlMatch = m.imageDataUrl.match(/^data:([^;]+);base64,(.+)$/s);
+            const mimeType = dataUrlMatch?.[1] ?? "image/png";
+            const base64Data = dataUrlMatch?.[2] ?? "";
+            const parts: Array<{ type: string; text?: string; image?: string; mimeType?: string }> = [];
+            if (base64Data) parts.push({ type: "image", image: base64Data, mimeType });
+            if (m.content) parts.push({ type: "text", text: m.content });
+            if (parts.length === 0) return { role: m.role, content: m.content };
+            return { role: m.role, content: parts };
+          }
+          return { role: m.role, content: m.content };
+        }),
       ];
 
       const assistantId = crypto.randomUUID();

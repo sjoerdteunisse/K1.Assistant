@@ -298,6 +298,7 @@ contextBridge.exposeInMainWorld("electronAPI", {
   modelGetAll: () => ipcRenderer.invoke("model-get-all"),
   modelCheck: (modelId) => ipcRenderer.invoke("model-check", modelId),
   modelDownload: (modelId) => ipcRenderer.invoke("model-download", modelId),
+  modelDownloadMmproj: (modelId) => ipcRenderer.invoke("model-download-mmproj", modelId),
   modelDelete: (modelId) => ipcRenderer.invoke("model-delete", modelId),
   modelDeleteAll: () => ipcRenderer.invoke("model-delete-all"),
   modelCheckRuntime: () => ipcRenderer.invoke("model-check-runtime"),
@@ -599,6 +600,7 @@ contextBridge.exposeInMainWorld("electronAPI", {
   getAgentWindowBounds: () => ipcRenderer.invoke("get-agent-window-bounds"),
   setAgentWindowBounds: (x, y, width, height) =>
     ipcRenderer.invoke("set-agent-window-bounds", x, y, width, height),
+  takeScreenshot: () => ipcRenderer.invoke("take-screenshot"),
   onPreviewText: registerListener("preview-text", (callback) => (_event, text) => callback(text)),
   onPreviewAppend: registerListener(
     "preview-append",

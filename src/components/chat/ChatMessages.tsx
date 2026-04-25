@@ -35,6 +35,7 @@ export function ChatMessages({ messages, emptyState, onOpenNote }: ChatMessagesP
                 isStreaming={msg.isStreaming}
                 toolCalls={msg.toolCalls}
                 onOpenNote={onOpenNote}
+                imageDataUrl={msg.imageDataUrl}
               />
             ))}
         </div>

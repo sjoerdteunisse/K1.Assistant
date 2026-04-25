@@ -28,6 +28,7 @@ class LlamaServerManager {
     this.healthCheckFailures = 0;
     this.cachedServerBinaryPaths = null;
     this.activeBackend = null;
+    this.mmprojPath = null;
   }
 
   getServerBinaryPaths() {
@@ -114,7 +115,12 @@ class LlamaServerManager {
   async start(modelPath, options = {}) {
     if (this.startupPromise) return this.startupPromise;
 
-    if (this.ready && this.modelPath === modelPath) return;
+    if (this.ready && this.modelPath === modelPath) {
+      // Also check if a new mmproj file has appeared since the server started
+      const currentMmproj = this._findMmprojFile(modelPath);
+      if (currentMmproj === this.mmprojPath) return;
+      // mmproj changed (e.g. just downloaded) — fall through to restart
+    }
 
     if (this.process) {
       await this.stop();
@@ -128,6 +134,23 @@ class LlamaServerManager {
     }
   }
 
+  /**
+   * Look for an mmproj file in the same directory as the model.
+   * Matches any file with "mmproj" in the name ending in .gguf.
+   */
+  _findMmprojFile(modelPath) {
+    try {
+      const dir = path.dirname(modelPath);
+      const files = fs.readdirSync(dir);
+      const mmproj = files.find(
+        (f) => f.toLowerCase().includes("mmproj") && f.toLowerCase().endsWith(".gguf")
+      );
+      return mmproj ? path.join(dir, mmproj) : null;
+    } catch {
+      return null;
+    }
+  }
+
   async _doStart(modelPath, options = {}) {
     const binaryPaths = this.getServerBinaryPaths();
     if (Object.keys(binaryPaths).length === 0) throw new Error("llama-server binary not found");
@@ -135,6 +158,15 @@ class LlamaServerManager {
 
     this.port = await this.findAvailablePort();
     this.modelPath = modelPath;
+
+    // Auto-detect mmproj file for multimodal models (e.g. Gemma 4 vision, LLaVA)
+    const mmprojPath = this._findMmprojFile(modelPath);
+    this.mmprojPath = mmprojPath;
+    if (mmprojPath) {
+      debugLogger.info("llama-server: found mmproj file for multimodal support", {
+        mmproj: path.basename(mmprojPath),
+      });
+    }
 
     const baseArgs = [
       "--model",
@@ -146,6 +178,7 @@ class LlamaServerManager {
       "--threads",
       String(options.threads || 4),
       "--jinja",
+      ...(mmprojPath ? ["--mmproj", mmprojPath] : []),
     ];
 
     if (process.platform === "darwin") {
@@ -529,6 +562,7 @@ class LlamaServerManager {
       modelName: this.modelPath ? path.basename(this.modelPath, ".gguf") : null,
       backend: this.activeBackend,
       gpuAccelerated: this.activeBackend === "vulkan" || this.activeBackend === "metal",
+      hasMmproj: !!this.mmprojPath,
     };
   }
 

@@ -85,7 +85,7 @@ export default function ChatView({
   }, [persistence, servers]);
 
   const handleTextSubmit = useCallback(
-    async (text: string) => {
+    async (text: string, imageDataUrl?: string) => {
       setIsNewChat(false);
       let convId = activeConversationId;
       if (!convId) {
@@ -98,6 +98,7 @@ export default function ChatView({
         role: "user" as const,
         content: text,
         isStreaming: false,
+        imageDataUrl,
       };
       persistence.setMessages((prev) => [...prev, userMsg]);
       await persistence.saveUserMessage(text);
@@ -107,7 +108,7 @@ export default function ChatView({
       }
 
       const allMessages = [...persistence.messages, userMsg];
-      await streaming.sendToAI(text, allMessages);
+      await streaming.sendToAI(text, allMessages, imageDataUrl);
     },
     [activeConversationId, persistence, streaming, activeMcpServerIds, setConversationServers]
   );

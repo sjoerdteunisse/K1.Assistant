@@ -1196,7 +1196,7 @@ class ReasoningService extends BaseReasoningService {
   }
 
   async *processTextStreaming(
-    messages: Array<{ role: string; content: string }>,
+    messages: Array<{ role: string; content: string | Array<{ type: string; text?: string; image?: string; mimeType?: string }> }>,
     model: string,
     provider: string,
     config: ReasoningConfig & { systemPrompt: string }
@@ -1245,9 +1245,43 @@ class ReasoningService extends BaseReasoningService {
     const apiConfig = getOpenAiApiConfig(model);
     const useOldTokenParam = isLocalProvider || isLanReasoning || provider === "groq";
 
+    // Serialize messages — preserve vision content parts (image+text) for local/LAN providers
+    // that support multimodal (e.g. Gemma 4, LLaVA). The OpenAI-compatible format is:
+    //   content: [{ type: "image_url", image_url: { url: "data:image/png;base64,..." } }, { type: "text", text: "..." }]
+    const serializedMessages = messages.map((m) => {
+      if (!Array.isArray(m.content)) return { role: m.role, content: m.content };
+
+      const hasImage = m.content.some((p) => p.type === "image");
+      if (!hasImage) {
+        // No images — flatten to plain text
+        return {
+          role: m.role,
+          content: m.content
+            .filter((p) => p.type === "text")
+            .map((p) => p.text ?? "")
+            .join("\n"),
+        };
+      }
+
+      // Build OpenAI-compatible multimodal content array
+      const parts = m.content.map((p) => {
+        if (p.type === "image") {
+          // p.image is raw base64 (no data: prefix), p.mimeType is e.g. "image/png"
+          const mime = p.mimeType ?? "image/png";
+          return {
+            type: "image_url",
+            image_url: { url: `data:${mime};base64,${p.image}` },
+          };
+        }
+        return { type: "text", text: p.text ?? "" };
+      });
+
+      return { role: m.role, content: parts };
+    });
+
     const requestBody: Record<string, unknown> = {
       model,
-      messages,
+      messages: serializedMessages,
       stream: true,
     };
 
@@ -1384,7 +1418,7 @@ class ReasoningService extends BaseReasoningService {
   }
 
   async *processTextStreamingAI(
-    messages: Array<{ role: string; content: string }>,
+    messages: Array<{ role: string; content: string | Array<{ type: string; text?: string; image?: string; mimeType?: string }> }>,
     model: string,
     provider: string,
     config: ReasoningConfig & { systemPrompt: string },
@@ -1446,9 +1480,10 @@ class ReasoningService extends BaseReasoningService {
 
     const result = streamText({
       model: aiModel,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       messages: messages.map((m) => ({
         role: m.role as "system" | "user" | "assistant",
-        content: m.content,
+        content: m.content as any,
       })),
       tools: tools || undefined,
       stopWhen: stepCountIs(tools ? ReasoningService.MAX_TOOL_STEPS : 1),

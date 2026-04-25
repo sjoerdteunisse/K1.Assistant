@@ -2008,7 +2008,12 @@
       "transcribing": "Transcription...",
       "thinking": "Réflexion...",
       "typeMessage": "Écrivez un message...",
-      "send": "Envoyer"
+      "send": "Envoyer",
+      "takeScreenshot": "Prendre une capture d'écran",
+      "removeScreenshot": "Supprimer la capture",
+      "screenshotAlt": "Capture d'écran jointe",
+      "vision": "Vision",
+      "multimodalModel": "Modèle multimodal chargé — saisie d'image prise en charge"
     },
     "tools": {
       "search_notesStatus": "Recherche de notes...",

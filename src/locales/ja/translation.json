@@ -2008,7 +2008,12 @@
       "transcribing": "文字起こし中...",
       "thinking": "考え中...",
       "typeMessage": "メッセージを入力...",
-      "send": "送信"
+      "send": "送信",
+      "takeScreenshot": "スクリーンショットを撮る",
+      "removeScreenshot": "スクリーンショットを削除",
+      "screenshotAlt": "添付されたスクリーンショット",
+      "vision": "ビジョン",
+      "multimodalModel": "マルチモーダルモデルが読み込まれました — 画像入力に対応"
     },
     "tools": {
       "search_notesStatus": "ノートを検索中...",

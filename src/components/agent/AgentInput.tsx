@@ -4,7 +4,7 @@ import type { AgentState } from "../chat/types";
 interface AgentInputProps {
   agentState: AgentState;
   partialTranscript: string;
-  onTextSubmit?: (text: string) => void;
+  onTextSubmit?: (text: string, imageDataUrl?: string) => void;
   onCancel?: () => void;
   actionSlot?: React.ReactNode;
 }

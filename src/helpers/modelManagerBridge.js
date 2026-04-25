@@ -99,6 +99,17 @@ class ModelManager {
     return true;
   }
 
+  getMmprojPath(model) {
+    if (!model.mmprojFileName) return null;
+    return path.join(this.modelsDir, model.mmprojFileName);
+  }
+
+  async isMmprojDownloaded(model) {
+    const mmprojPath = this.getMmprojPath(model);
+    if (!mmprojPath) return false;
+    return this.checkModelValid(mmprojPath);
+  }
+
   async getAllModels() {
     this.ensureInitialized();
     try {
@@ -108,6 +119,7 @@ class ModelManager {
         for (const model of provider.models) {
           const modelPath = path.join(this.modelsDir, model.fileName);
           const isDownloaded = await this.checkModelValid(modelPath);
+          const mmprojDownloaded = await this.isMmprojDownloaded(model);
 
           models.push({
             ...model,
@@ -115,6 +127,8 @@ class ModelManager {
             providerName: provider.name,
             isDownloaded,
             path: isDownloaded ? modelPath : null,
+            mmprojDownloaded,
+            mmprojPath: mmprojDownloaded ? this.getMmprojPath(model) : null,
           });
         }
       }
@@ -261,6 +275,85 @@ class ModelManager {
   getDownloadUrl(provider, model) {
     const baseUrl = provider.baseUrl || "https://huggingface.co";
     return `${baseUrl}/${model.hfRepo}/resolve/main/${model.fileName}`;
+  }
+
+  getMmprojDownloadUrl(provider, model) {
+    if (!model.mmprojFileName) return null;
+    const baseUrl = provider.baseUrl || "https://huggingface.co";
+    return `${baseUrl}/${model.hfRepo}/resolve/main/${model.mmprojFileName}`;
+  }
+
+  async downloadMmproj(modelId, onProgress) {
+    this.ensureInitialized();
+    const modelInfo = this.findModelById(modelId);
+    if (!modelInfo) {
+      throw new ModelNotFoundError(modelId);
+    }
+
+    const { model, provider } = modelInfo;
+    if (!model.mmprojFileName) {
+      throw new ModelError("This model does not have an mmproj file", "NO_MMPROJ", { modelId });
+    }
+
+    const mmprojPath = this.getMmprojPath(model);
+    if (await this.checkModelValid(mmprojPath)) {
+      return mmprojPath;
+    }
+
+    const downloadKey = `${modelId}:mmproj`;
+    if (this.activeDownloads.get(downloadKey)) {
+      throw new ModelError("mmproj is already being downloaded", "DOWNLOAD_IN_PROGRESS", {
+        modelId,
+      });
+    }
+
+    this.activeDownloads.set(downloadKey, true);
+    const { signal, abort } = createDownloadSignal();
+    this.activeRequests.set(downloadKey, { abort });
+
+    try {
+      await this.ensureModelsDirExists();
+      const downloadUrl = this.getMmprojDownloadUrl(provider, model);
+
+      await sharedDownloadFile(downloadUrl, mmprojPath, {
+        signal,
+        onProgress: (downloadedBytes, totalBytes) => {
+          const progress = totalBytes > 0 ? (downloadedBytes / totalBytes) * 100 : 0;
+          this.downloadProgress.set(downloadKey, {
+            modelId,
+            progress,
+            downloadedSize: downloadedBytes,
+            totalSize: totalBytes,
+          });
+          if (onProgress) {
+            onProgress(progress, downloadedBytes, totalBytes);
+          }
+        },
+      });
+
+      return mmprojPath;
+    } catch (error) {
+      if (error.isAbort) {
+        throw new ModelError("mmproj download cancelled", "DOWNLOAD_CANCELLED", { modelId });
+      }
+      if (error.isHttpError) {
+        throw new ModelError(
+          `mmproj download failed with status ${error.statusCode}`,
+          "DOWNLOAD_FAILED",
+          { statusCode: error.statusCode }
+        );
+      }
+      if (!(error instanceof ModelError)) {
+        throw new ModelError(`Network error: ${error.message}`, "NETWORK_ERROR", {
+          error: error.message,
+        });
+      }
+      throw error;
+    } finally {
+      this.activeDownloads.delete(downloadKey);
+      this.activeRequests.delete(downloadKey);
+      this.downloadProgress.delete(downloadKey);
+    }
   }
 
   cancelDownload(modelId) {

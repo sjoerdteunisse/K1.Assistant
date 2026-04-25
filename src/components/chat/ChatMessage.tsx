@@ -20,6 +20,7 @@ interface ChatMessageProps {
   isStreaming: boolean;
   toolCalls?: ToolCallInfo[];
   onOpenNote?: (noteId: number) => void;
+  imageDataUrl?: string;
 }
 
 const NOTE_TOOLS = new Set(["create_note", "update_note", "get_note"]);
@@ -191,6 +192,7 @@ export function ChatMessage({
   isStreaming,
   toolCalls,
   onOpenNote,
+  imageDataUrl,
 }: ChatMessageProps) {
   const { t } = useTranslation();
   const [copied, setCopied] = useState(false);
@@ -214,12 +216,20 @@ export function ChatMessage({
         <div
           data-chat-bubble
           className={cn(
-            "max-w-[80%] px-3 py-2 rounded-lg rounded-br-sm",
+            "max-w-[80%] rounded-lg rounded-br-sm overflow-hidden",
             "bg-primary/90 text-primary-foreground",
-            "text-[13px] leading-relaxed"
           )}
         >
-          {content}
+          {imageDataUrl && (
+            <img
+              src={imageDataUrl}
+              alt="screenshot"
+              className="w-full max-h-48 object-cover object-top block"
+            />
+          )}
+          {content && (
+            <span className="block px-3 py-2 text-[13px] leading-relaxed">{content}</span>
+          )}
         </div>
       </div>
     );

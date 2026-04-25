@@ -2103,7 +2103,12 @@
       "transcribing": "Transcribing...",
       "thinking": "Thinking...",
       "typeMessage": "Type a message...",
-      "send": "Send"
+      "send": "Send",
+      "takeScreenshot": "Take screenshot",
+      "removeScreenshot": "Remove screenshot",
+      "screenshotAlt": "Attached screenshot",
+      "vision": "Vision",
+      "multimodalModel": "Multimodal model loaded — image input supported"
     },
     "tools": {
       "search_notesStatus": "Searching notes...",

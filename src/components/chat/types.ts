@@ -13,6 +13,8 @@ export interface Message {
   content: string;
   isStreaming: boolean;
   toolCalls?: ToolCallInfo[];
+  /** Base64 data URL of an attached screenshot (user messages only). */
+  imageDataUrl?: string;
 }
 
 export type AgentState =

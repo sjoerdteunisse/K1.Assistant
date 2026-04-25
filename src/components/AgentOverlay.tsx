@@ -65,8 +65,8 @@ export default function AgentOverlay() {
   );
 
   const handleTranscriptionComplete = useCallback(
-    async (text: string) => {
-      if (!text.trim()) return;
+    async (text: string, imageDataUrl?: string) => {
+      if (!text.trim() && !imageDataUrl) return;
 
       if (!persistence.conversationId) {
         await persistence.createConversation(t("agentMode.titleBar.newChat"));
@@ -77,6 +77,7 @@ export default function AgentOverlay() {
         role: "user",
         content: text,
         isStreaming: false,
+        imageDataUrl,
       };
       setMessages((prev) => [...prev, userMsg]);
 
@@ -87,7 +88,7 @@ export default function AgentOverlay() {
         window.electronAPI?.updateAgentConversationTitle?.(persistence.conversationId, title);
       }
 
-      await streaming.sendToAI(text, [...messages, userMsg]);
+      await streaming.sendToAI(text, [...messages, userMsg], imageDataUrl);
     },
     [t, messages, setMessages, persistence, streaming]
   );

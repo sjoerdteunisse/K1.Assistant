@@ -2008,7 +2008,12 @@
       "transcribing": "正在轉錄...",
       "thinking": "正在思考...",
       "typeMessage": "輸入訊息...",
-      "send": "傳送"
+      "send": "傳送",
+      "takeScreenshot": "截取畫面",
+      "removeScreenshot": "移除截圖",
+      "screenshotAlt": "已附加截圖",
+      "vision": "視覺",
+      "multimodalModel": "已載入多模態模型 — 支援圖像輸入"
     },
     "tools": {
       "search_notesStatus": "正在搜尋筆記...",
